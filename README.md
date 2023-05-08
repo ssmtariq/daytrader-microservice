@@ -1,1 +1,0 @@
-# daytrader-microservice-test
