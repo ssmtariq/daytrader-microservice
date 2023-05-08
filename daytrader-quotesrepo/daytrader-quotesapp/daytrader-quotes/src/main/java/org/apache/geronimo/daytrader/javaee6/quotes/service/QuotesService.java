@@ -426,6 +426,27 @@ public class QuotesService
         return quoteData;
     }
 
+
+    /**
+     * @see TradeServices#getQuotePrice(String)
+     */
+    public BigDecimal getQuotePrice(String symbol) throws Exception {
+        BigDecimal quoteData = null;
+        Connection conn = null;
+
+        try {
+            conn = getConn();
+            quoteData = getQuotePrice(conn, symbol);
+            commit(conn);
+        } catch (Exception e) {
+            rollBack(conn, e);
+            throw e;
+        } finally {
+            releaseConn(conn);
+        }
+        return quoteData;
+    }
+
     /**
      * @see TradeServices#getAllQuotes(String)
      */
@@ -538,6 +559,21 @@ public class QuotesService
         stmt.close();
 
         return quoteData;
+    }
+
+    private BigDecimal getQuotePrice(Connection conn, String symbol) throws Exception {
+        BigDecimal price;
+        PreparedStatement stmt = getStatement(conn, getQuoteSQLNew);
+        stmt.setString(1, symbol); // symbol
+
+        ResultSet rs = stmt.executeQuery();
+        if (!rs.next())
+            throw new NotFoundException("Error with getPrice -- no results");
+        else
+            price = rs.getBigDecimal("PRICE");
+        stmt.close();
+
+        return price;
     }
 	
     private QuoteDataBean getQuoteForUpdate(Connection conn, String symbol) throws Exception {
@@ -724,6 +760,8 @@ public class QuotesService
             + "VALUES (  ?  ,  ?  ,  ?  ,  ?  ,  ?  ,  ?  ,  ?  ,  ?  )";
 
     private static final String getQuoteSQL = "select * from quoteejb q where q.symbol=?";
+
+    private static final String getQuoteSQLNew = "select price as PRICE from quoteejb q where q.symbol=?";
 
     private static final String getAllQuotesSQL = "select * from quoteejb q";
 

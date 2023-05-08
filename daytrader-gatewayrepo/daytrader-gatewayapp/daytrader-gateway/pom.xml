@@ -421,7 +421,7 @@
       					</executions>
       					<configuration>
         					<repository>${docker.image.prefix}/${project.artifactId}</repository>
-        					<tag>4.0.18</tag>
+        					<tag>optimized</tag>
 				    		<buildArgs>
                                 <WAR_ARTIFACTID>${project.artifactId}</WAR_ARTIFACTID>
           						<APP_VERSION>${project.parent.version}</APP_VERSION>
