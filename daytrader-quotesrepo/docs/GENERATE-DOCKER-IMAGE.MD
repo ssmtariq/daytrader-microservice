@@ -126,6 +126,6 @@ With the `Dockerfile` and the `Dockerfile Plugin` in place, we can use Maven to 
 
 1.  `$ cd daytrader-quotesapp`
 
-2.  `$ mvn -Pcd clean install`
+2.  `$ mvn -Pkubernetes clean install`
 
 This command creates an image with the version `<tag>` you specified in the Plugin. You must update this `<tag>` for a rolling update.
