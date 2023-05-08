@@ -575,12 +575,12 @@ public class PortfoliosService
     		
 			//
             // Ask quotes microservice for the data instead of accessing directly
-            QuoteDataBean quoteData = quotesService.getQuote(symbol);
+            // QuoteDataBean quoteData = quotesService.getQuote(symbol);
     		
-    		// QuoteDataBean quoteData = new QuoteDataBean();
-			// BigDecimal QuotePrice = quotesService.getQuotePrice(symbol);
-			// quoteData.setPrice(QuotePrice);
-			// quoteData.setSymbol(symbol);
+    		QuoteDataBean quoteData = new QuoteDataBean();
+			BigDecimal QuotePrice = quotesService.getQuotePrice(symbol);
+			quoteData.setPrice(QuotePrice);
+			quoteData.setSymbol(symbol);
             
             orderData = buy(conn, accountData, orderData, quoteData, mode);
     		
