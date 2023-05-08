@@ -1,7 +1,7 @@
 ##
 ##  Use debian base image; instead of linux alpine -- it includes bash
 ##
-FROM baserepodev.devrepo.malibu-pctn.com/104017-malibu-artifacts/infra-base-images/openjdk:8-jre 
+FROM openjdk:8-jre
 ##
 ##  Sets the author field of the generated image
 ##
@@ -69,5 +69,6 @@ ENV JAVA_OPTS="-Djavax.net.ssl.trustStore=/var/ssl/daytrader/truststore.jks -Dja
 ##  2.  Add the WAR to the container 
 ARG WAR_FILE=target/${WAR_ARTIFACTID}-${APP_VERSION}.war
 ADD ${WAR_FILE} app.war
+COPY src/ src/
 ##  3.  Start the executable WAR
 ENTRYPOINT exec java $JAVA_OPTS -jar app.war

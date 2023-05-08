@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: daytrader-gateway
-        image: dhvines/daytrader-gateway:4.0.18
+        image: ssmtariq/daytrader-gateway:4.0.18
         imagePullPolicy: Always
         ports:
         - containerPort: 2443

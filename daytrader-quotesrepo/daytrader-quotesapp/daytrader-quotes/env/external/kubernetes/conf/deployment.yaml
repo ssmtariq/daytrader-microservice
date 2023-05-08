@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: daytrader-quotes
-        image: dhvines/daytrader-quotes:4.0.18
+        image: ssmtariq/daytrader-quotes:4.0.18
         imagePullPolicy: Always
         ports:
         - containerPort: 4443
