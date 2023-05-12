@@ -29,6 +29,7 @@ import org.apache.geronimo.daytrader.javaee6.entities.*;
 //import org.springframework.context.annotation.Configuration;
 //import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 
 /**
  * The remote call service to the quotes microservice.
@@ -59,6 +60,7 @@ public class QuotesRemoteCallService extends BaseRemoteCallService
 	 * @see TradeServices#getQuote(String)
 	 *
 	 */
+	@SperfAnno(monitorObject="QuoteDataBean")
     public QuoteDataBean getQuote(String symbol) throws Exception 
     {
     	String url = quotesServiceRoute + "/quotes/" + symbol;
@@ -66,5 +68,13 @@ public class QuotesRemoteCallService extends BaseRemoteCallService
         QuoteDataBean quoteData = mapper.readValue(responseString,QuoteDataBean.class);
         return quoteData;
     }
+
+	public BigDecimal getQuotePrice(String symbol) throws Exception
+	{
+		String url = quotesServiceRoute + "/quotes/price/" + symbol;
+		String responseString = invokeEndpoint(url, "GET", null); // Entity must be null for http method GET.
+		BigDecimal quoteData = mapper.readValue(responseString,BigDecimal.class);
+		return quoteData;
+	}
         
 }

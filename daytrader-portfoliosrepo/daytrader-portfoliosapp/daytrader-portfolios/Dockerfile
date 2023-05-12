@@ -1,11 +1,44 @@
 ##
 ##  Use debian base image; instead of linux alpine -- it includes bash
 ##
-FROM openjdk:8-jre
+#FROM openjdk:11-jre
+FROM ubuntu:18.04
 ##
 ##  Sets the author field of the generated image
 ##
 MAINTAINER Donald Vines <donald_vines@hotmail.com>
+
+RUN apt update -y \
+    && apt-get upgrade -y\
+    && apt install software-properties-common -y \
+    && add-apt-repository ppa:deadsnakes/ppa -y \
+    && add-apt-repository ppa:openjdk-r/ppa -y \
+    && apt update -y \
+    && apt-get install python3 -y \
+    && apt-get install python3-pip -y \
+    && apt-get install -y git build-essential \
+    && apt-get install -y libnuma-dev
+
+RUN alias python=python3
+RUN apt install -y --reinstall -o Dpkg::Options::="--force-confask,confnew,confmiss" --reinstall ca-certificates-java ssl-cert openssl ca-certificates
+
+RUN apt -y install openjdk-11-jre openjdk-11-jdk
+
+ARG MAVEN_VERSION=3.8.6
+ARG USER_HOME_DIR="/root"
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
+    && apt-get install curl -y \
+    && echo "Downlaoding maven" \
+    && curl -fsSL -o /tmp/apache-maven.tar.gz  https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz \
+    && echo "Unziping maven" \
+    && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \
+    && echo "Cleaning and setting links" \
+    && rm -f /tmp/apache-maven.tar.gz \
+    && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
+RUN mvn -version
+
+
 ##
 ##  Declare Docker ARGs whose values are set when building the image; but they are not available to the container
 ##
@@ -69,6 +102,44 @@ ENV JAVA_OPTS="-Djavax.net.ssl.trustStore=/var/ssl/daytrader/truststore.jks -Dja
 ##  2.  Add the WAR to the container 
 ARG WAR_FILE=target/${WAR_ARTIFACTID}-${APP_VERSION}.war
 ADD ${WAR_FILE} app.war
-COPY src/ src/
 ##  3.  Start the executable WAR
-ENTRYPOINT exec java $JAVA_OPTS -jar app.war
+#ENTRYPOINT exec java $JAVA_OPTS -jar app.war
+
+
+
+#RUN alias python=python3
+
+# RUN mkdir /etc/ssl/certs/java/
+#RUN apt install -y --reinstall -o Dpkg::Options::="--force-confask,confnew,confmiss" --reinstall ca-certificates-java ssl-cert openssl ca-certificates
+
+#RUN apt -y install openjdk-11-jre openjdk-11-jdk
+
+# Downloading and installing Maven
+
+
+# RUN pip install bintrees google-api-python-client
+
+COPY src/ src/
+COPY sperf/ sperf/
+
+WORKDIR sperf/
+
+ENV JXPerf_HOME /sperf
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
+ENV MAVEN_HOME /usr/share/maven
+ENV PATH $JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
+ENV LD_LIBRARY_PATH $JXPerf_HOME/bin/kissmalloc:$JXPerf_HOME/build/preload:$LD_LIBRARY_PATH
+ENV JAVA_AGENT $JXPerf_HOME/thirdparty/allocation-instrumenter/target/java-allocation-instrumenter-HEAD-SNAPSHOT.jar
+
+#Replace with instrumenting class package
+#RUN sed -i 's/replaceWithClassName/edu\/fudan\/common\//' /sperf/thirdparty/allocation-instrumenter/src/main/java/com/google/monitoring/runtime/instrumentation/AllocationInstrumenter.java
+#RUN grep -C 0 "fudan" /sperf/thirdparty/allocation-instrumenter/src/main/java/com/google/monitoring/runtime/instrumentation/AllocationInstrumenter.java
+
+RUN make -j
+
+RUN mkdir /cache
+WORKDIR /cache
+
+RUN sysctl -a | grep perf_event_paranoid
+
+CMD ["sysctl", "-w", "kernel.perf_event_paranoid=1"]

@@ -265,7 +265,10 @@ public class PortfoliosController
 			if (orderData.getOrderType().equals("buy")) 
 			{
 				// Buy the specified quantity of stock and add a holding to the portfolio
+				long startTime = System.nanoTime();
 				orderData = portfoliosService.buy(userId,orderData.getSymbol(),orderData.getQuantity(),mode);
+				long endTime = System.nanoTime();
+				System.out.println((endTime - startTime) + " nanoseconds-");
 				Log.traceExit("PortfoliosController.processOrder()");
 				return new ResponseEntity<OrderDataBean>(orderData, getNoCacheHeaders(), HttpStatus.CREATED);
 			}

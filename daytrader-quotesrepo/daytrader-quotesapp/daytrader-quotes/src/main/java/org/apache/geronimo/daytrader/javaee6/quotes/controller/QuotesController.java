@@ -218,7 +218,35 @@ public class QuotesController
 			return new ResponseEntity<QuoteDataBean>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-		
+
+	@RequestMapping(value = "/quotes/price/{symbol}", method = RequestMethod.GET)
+	public ResponseEntity<BigDecimal> getQuotePrice(@PathVariable("symbol") String symbol)
+	{
+		Log.traceEnter("QuotesController.getQuote()");
+
+		BigDecimal  quoteData = null;
+
+		try
+		{
+			quoteData = quotesService.getQuotePrice(symbol);
+			if (quoteData != null)
+			{
+				Log.traceExit("QuotesController.getQuotePrice()");
+				return new ResponseEntity<BigDecimal>(quoteData,getNoCacheHeaders(),HttpStatus.OK);
+			}
+			else
+			{
+				Log.traceExit("QuotesController.getQuote()");
+				return new ResponseEntity<BigDecimal>(quoteData, getNoCacheHeaders(),HttpStatus.NO_CONTENT);
+			}
+		}
+		catch (Throwable t)
+		{
+			Log.error("QuotesController.getQuote()", t);
+			return new ResponseEntity<BigDecimal>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	//
 	// Markets Related Endpoints
 	//

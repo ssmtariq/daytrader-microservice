@@ -552,7 +552,7 @@ public class PortfoliosService
         // Mode is ignored for now. Later it will be used for async order processing
         Connection conn = null;
         OrderDataBean orderData = null;
-
+        
         try {
 
             conn = getConn();
@@ -577,7 +577,12 @@ public class PortfoliosService
             // Ask quotes microservice for the data instead of accessing directly
             QuoteDataBean quoteData = quotesService.getQuote(symbol);
     		
-    		orderData = buy(conn, accountData, orderData, quoteData, mode);
+    		// QuoteDataBean quoteData = new QuoteDataBean();
+			// BigDecimal QuotePrice = quotesService.getQuotePrice(symbol);
+			// quoteData.setPrice(QuotePrice);
+			// quoteData.setSymbol(symbol);
+            
+            orderData = buy(conn, accountData, orderData, quoteData, mode);
     		
     		commit(conn);
     		
